@@ -1,0 +1,424 @@
+<div
+  [class]="topMargin ? 'p-'+horizontalPadding+' crud-container' : 'px-'+horizontalPadding+' pb-'+horizontalPadding+' crud-container'">
+  <div class="px-4 pt-4 d-flex justify-content-between bg-component fixed-header" *ngIf="showTitle" #titleContainer>
+    <div>
+      <h5>{{crudConfig.title}}</h5>
+      <p *ngIf="crudConfig.subTitle" class="mb-0 f-3">{{crudConfig.subTitle}}</p>
+    </div>
+    <div class="d-flex flex-wrap-reverse justify-content-end">
+      <button
+        class="mr-4"
+        nz-button
+        nz-tooltip="Reload Table"
+        nzType="link"
+        (click)="reloadPage()"
+      >
+        <i nz-icon nzType="reload" nzTheme="outline"></i>
+      </button>
+      <button
+        *ngIf="isImportAllowed && crudActions?.import?.visible"
+        [disabled]="crudActions?.import?.disabled"
+        class="ml-auto mr-8" nz-button nzType="text" (click)="onShowImportForm()">
+        Import
+        <i nz-icon nzType="cloud-upload"></i>
+      </button>
+      <ng-container *ngIf="isExportAllowed && crudActions?.export?.visible">
+        <button
+          [disabled]="crudActions?.export?.disabled"
+          nz-button nz-dropdown nzType="default" nzSize="large" class="mr-8"
+          [nzDropdownMenu]="menuExport" [nzPlacement]="'bottomCenter'">Export ({{setOfChecked.size}})
+        </button>
+        <nz-dropdown-menu #menuExport="nzDropdownMenu" class="mr-8">
+          <ul nz-menu>
+            <ng-container>
+              <li nz-menu-item [nzDisabled]="setOfChecked.size < 1" (click)="onExport(transferFileTypeEnum.Xlsx)">Export
+                ({{setOfChecked.size}}) as Excel
+              </li>
+              <li nz-menu-item [nzDisabled]="setOfChecked.size < 1" (click)="onExport(transferFileTypeEnum.Ods)">Export
+                ({{setOfChecked.size}}) as ODS
+              </li>
+              <li nz-menu-item [nzDisabled]="setOfChecked.size < 1" (click)="onExport(transferFileTypeEnum.Json)">Export
+                ({{setOfChecked.size}}) as JSON
+              </li>
+              <li nz-menu-item (click)="onExport(transferFileTypeEnum.Xlsx, true)">Export All as Excel</li>
+              <li nz-menu-item (click)="onExport(transferFileTypeEnum.Ods, true)">Export All as ODS</li>
+              <li nz-menu-item (click)="onExport(transferFileTypeEnum.Json, true)">Export All as JSON</li>
+            </ng-container>
+          </ul>
+        </nz-dropdown-menu>
+      </ng-container>
+      <ng-container *ngIf="
+        (crudActions.updateMany.visible || crudActions.deleteMany.visible)
+      ">
+        <button
+          nz-button nz-dropdown nzType="default" nzSize="large" class="mr-8"
+          [nzDropdownMenu]="menu" [nzPlacement]="'bottomCenter'">Action ({{setOfChecked.size}})
+        </button>
+        <nz-dropdown-menu #menu="nzDropdownMenu" class="mr-8">
+          <ul nz-menu>
+            <li *ngIf="isUpdateManyAllowed && crudActions.updateMany.visible" nz-menu-item
+                [nzDisabled]="setOfChecked.size < 1 || crudActions.updateMany.disabled"
+                (click)="onShowUpdateManyForm(setOfChecked)">Edit ({{setOfChecked.size}})
+            </li>
+            <li *ngIf="isDeleteManyAllowed && crudActions.deleteMany.visible" nz-menu-item
+                [nzDisabled]="setOfChecked.size < 1 || crudActions.deleteMany.disabled"
+                (click)="onDeleteManyModalShow()">Delete ({{setOfChecked.size}})
+            </li>
+            <li nz-menu-item [nzDisabled]="setOfChecked.size < 1" (click)="onClearSelection()">Clear selection</li>
+            <ng-container *ngIf="crudConfig.selectedActionsList.length > 0">
+              <li [nzDisabled]="action.noSelectionDisable && setOfChecked.size < 1" nz-menu-item
+                  *ngFor="let action of crudConfig.selectedActionsList"
+                  (click)="action.action(setOfChecked)">{{action.label}}</li>
+            </ng-container>
+          </ul>
+        </nz-dropdown-menu>
+      </ng-container>
+
+      <button
+        *ngIf="isCreateAllowed && crudActions.create.visible"
+        [disabled]="crudActions.create.disabled"
+        nz-button nzType="primary" nzSize="large" (click)="onShowCreateForm()"
+      >
+        <i class="mr-2" nz-icon nzType="plus" nzTheme="outline"></i>
+        Create {{crudConfig.single}}
+      </button>
+    </div>
+  </div>
+  <div *ngIf="filterForm" class="py-4 px-4 bg-component" #filterFormContainer>
+    <ng-content select="[zenCrudFilterForm]"></ng-content>
+  </div>
+  <nz-table
+    *ngIf="columns"
+    nzShowSizeChanger
+    nzShowPagination
+    [nzData]="items"
+    [nzPageSize]="limit"
+    [nzFrontPagination]="false"
+    [nzLoading]="isLoading$|async"
+    [nzTotal]="total"
+    [nzPageIndex]="page"
+    (nzPageIndexChange)="checkedPage = false"
+    [nzShowTotal]="rangeTemplate"
+    [nzPageSizeOptions]="nzPageSizeOptions"
+    (nzQueryParams)="onQueryParamsChange($event)"
+    [nzSize]="'small'"
+    [nzScroll]="(nzScroll | async) || { x: '250px' }"
+  >
+    <thead>
+    <tr class="fixed-header">
+      <th
+        *ngIf="showCheckboxes"
+        [nzLeft]="true"
+        nzShowCheckbox
+        [(nzChecked)]="checkedPage"
+        (nzCheckedChange)="onAllChecked($event)"
+        [nzWidth]="'50px'"
+      ></th>
+      <th
+        *ngIf="crudConfig.isDragged"
+        [nzWidth]="'50px'"
+      ></th>
+      <ng-container *ngFor="let col of columns">
+        <ng-container *ngIf="!col.sortBy">
+          <th
+            *ngIf="col.label"
+            class="text-align-{{col?.align || 'left'}}"
+            [nzLeft]="col.fixedLeft|bool"
+            [nzRight]="col.fixedRight|bool"
+            [nzWidth]="col.nzWidth ?? ''"
+          >{{col.label}}</th>
+          <th
+            *ngIf="!col.label"
+            [nzWidth]="'50px'"
+            class="text-align-{{col?.align || 'left'}}"
+            [nzLeft]="col.fixedLeft|bool"
+            [nzRight]="col.fixedRight|bool"
+          ></th>
+        </ng-container>
+        <th
+          *ngIf="col.sortBy"
+          [nzSortFn]="true"
+          [nzColumnKey]="col.sortBy"
+          class="text-align-{{col?.align || 'left'}}"
+          [nzLeft]="col.fixedLeft|bool"
+          [nzRight]="col.fixedRight|bool"
+          [nzWidth]="col.nzWidth ?? ''"
+        >{{col.label}}</th>
+      </ng-container>
+      <th
+        *ngIf="(crudActions.details.visible||crudActions.deleteOne.visible||crudActions.update.visible)"
+        [nzWidth]="[crudActions.details.visible,crudActions.deleteOne.visible,crudActions.update.visible]|actionColumnWidth"
+        nzAlign="center"
+        [nzRight]="true"
+      >
+        Actions
+      </th>
+    </tr>
+    </thead>
+
+    <tbody
+      cdkDropList
+      (cdkDropListDropped)="onDrop()"
+      [cdkDropListData]="items"
+      [cdkDropListSortingDisabled]="!crudConfig.isDragged"
+      [cdkDropListAutoScrollDisabled]="!crudConfig.isDragged"
+      [cdkDropListDisabled]="!crudConfig.isDragged"
+      [cdkDropListSortPredicate]="onSortPredicate"
+    >
+    <tr
+      *ngFor="let item of items; let ind = index"
+      cdkDrag
+      [cdkDragDisabled]="!crudConfig.isDragged"
+
+      (cdkDragStarted)="onStartDrag(item.id)"
+    >
+      <td
+        *ngIf="showCheckboxes"
+        nzShowCheckbox
+        [nzChecked]="setOfChecked.has(item.id)"
+        (nzCheckedChange)="onItemChecked(item.id, $event)"
+        [nzLeft]="true"
+      ></td>
+      <td
+        *ngIf="crudConfig.isDragged"
+      ><i nz-icon nzType="drag" nzTheme="outline"></i></td>
+      <td
+        *ngFor="let col of columns"
+        class="text-align-{{col?.align || 'left'}} text-bold"
+        [nzLeft]="col.fixedLeft|bool"
+        [nzRight]="col.fixedRight|bool"
+      >
+        <zen-column-link *ngIf="col.cellType === 'link'" [value]="item | cellValue:col"></zen-column-link>
+        <ng-container *ngIf="col.cellType === 'text'">
+          {{item|cellValue:col}}
+        </ng-container>
+        <ng-container *ngIf="col.cellType === 'text[]'">
+          {{item|cellValue:col | join}}
+        </ng-container>
+        <ng-container *ngIf="col.cellType === 'tags'">
+          <zen-column-tags [tags]="(item|cellValue:col)"></zen-column-tags>
+        </ng-container>
+        <zen-column-image *ngIf="col.cellType === 'image'" [value]="item|cellValue:col"></zen-column-image>
+        <zen-column-date *ngIf="col.cellType === 'date'" [value]="item|cellValue:col"></zen-column-date>
+        <zen-column-boolean *ngIf="col.cellType === 'boolean'" [value]="item|cellValue:col"></zen-column-boolean>
+        <zen-column-number *ngIf="col.cellType === 'number'" [value]="item|cellValue:col"></zen-column-number>
+      </td>
+      <td
+        *ngIf="crudActions.details.visible||crudActions.deleteOne.visible||crudActions.update.visible"
+        nzAlign="center"
+        [nzRight]="true"
+      >
+        <button
+          *ngIf="isUpdateAllowed && crudActions?.update?.visible"
+          [disabled]="crudActions?.update?.disabled"
+          (click)="onShowUpdateForm(item)"
+          nz-button
+          nzType="link"
+          nzSize="small">
+          <i nz-icon nzType="edit" nzTheme="outline"></i>
+        </button>
+        <button
+          *ngIf="crudActions.details.visible"
+          [disabled]="crudActions.details.disabled"
+          (click)="onShowDetailForm(item)"
+          nz-button
+          nzType="link"
+          nzSize="small">
+          <i nz-icon nzType="read" nzTheme="outline"></i>
+        </button>
+        <button
+          *ngIf="crudActions.deleteOne.visible && isDeleteAllowed"
+          [disabled]="crudActions.deleteOne.disabled"
+          (click)="onDelete(item)"
+          nzType="link"
+          nz-button
+          nzDanger
+          nzSize="small">
+          <i nz-icon nzType="delete" nzTheme="outline"></i>
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<ng-template #rangeTemplate let-range="range" let-total>
+  {{ range[0] }}-{{ range[1] }} of {{ total }} items
+</ng-template>
+
+<nz-drawer
+  [nzClosable]="true"
+  [nzWidth]="crudConfig.formWidth"
+  [nzVisible]="openPanel === 'create'"
+  [nzBodyStyle]="nzBodyStyle"
+  nzPlacement="right"
+  nzTitle="Create {{crudConfig.single}}"
+  [nzFooter]="createPanelFooter"
+  (nzOnClose)="onCloseDrawer()"
+>
+  <ng-template nzDrawerContent>
+    <div class="form-loader" *ngIf="isLoading$|async">
+      <nz-spin nzSize="large" nzSimple></nz-spin>
+    </div>
+    <ng-container *ngIf="openPanel === 'create'">
+      <ng-content select="[zenCrudCreateForm]"></ng-content>
+    </ng-container>
+  </ng-template>
+</nz-drawer>
+
+<ng-template #createPanelFooter>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <button (click)="onCloseDrawer()" nzBlock nz-button nzType="link">Cancel</button>
+      </div>
+      <div class="col-12">
+        <button [nzLoading]="isLoading$ | async" (click)="onCreateButtonClick()" nzBlock nz-button nzType="primary">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+<nz-drawer
+  [nzClosable]="true"
+  [nzWidth]="crudConfig.formWidth"
+  [nzVisible]="openPanel === 'update'"
+  nzPlacement="right"
+  nzTitle="Edit {{updateName}}"
+  [nzFooter]="updatePanelFooter"
+  [nzBodyStyle]="nzBodyStyle"
+  (nzOnClose)="onCloseDrawer()"
+>
+  <ng-template nzDrawerContent>
+    <div class="form-loader" *ngIf="isLoading$|async">
+      <nz-spin nzSize="large" nzSimple></nz-spin>
+    </div>
+    <ng-content select="[zenCrudUpdateForm]"></ng-content>
+  </ng-template>
+</nz-drawer>
+
+<ng-template #updatePanelFooter>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <button (click)="onCloseDrawer()" nzBlock nz-button nzType="link">Cancel</button>
+      </div>
+      <div class="col-12">
+        <button [nzLoading]="isLoading$ | async" (click)="onUpdateButtonClick()" nzBlock nz-button nzType="primary">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<nz-drawer
+  [nzClosable]="true"
+  [nzWidth]="crudConfig.formBundleWidth || crudConfig.formWidth || ''"
+  [nzVisible]="openPanel === 'detail'"
+  nzPlacement="right"
+  nzTitle="Details {{detailName}}"
+  (nzOnClose)="onCloseDrawer()"
+  [nzFooter]="detailForm?.component?.footer"
+>
+  <ng-template nzDrawerContent>
+    <div class="form-modal" *ngIf="isLoading$|async">
+      <nz-spin nzSize="large" nzSimple></nz-spin>
+    </div>
+    <ng-content select="[zenCrudDetails]"></ng-content>
+  </ng-template>
+</nz-drawer>
+
+<nz-drawer
+  [nzClosable]="true"
+  [nzWidth]="crudConfig.formBundleWidth"
+  [nzVisible]="openPanel === 'patchBundle'"
+  nzPlacement="right"
+  nzTitle="Edit {{crudConfig.plural}}"
+  [nzFooter]="updateManyPanelFooter"
+  (nzOnClose)="onCloseDrawer()"
+>
+  <ng-template nzDrawerContent>
+    <div class="form-loader" *ngIf="isLoading$|async">
+      <nz-spin nzSize="large" nzSimple></nz-spin>
+    </div>
+    <ng-content select="[zenCrudUpdateManyForm]"></ng-content>
+  </ng-template>
+</nz-drawer>
+
+<ng-template #updateManyPanelFooter>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <button (click)="onCloseDrawer()" nzBlock nz-button nzType="link">Cancel</button>
+      </div>
+      <div class="col-12">
+        <button [nzLoading]="isLoading$ | async" (click)="onUpdateManyButtonClick()" nzBlock nz-button nzType="primary">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="isDeleteModalVisible"
+  nzTitle="Are you sure you want to delete {{crudConfig.single.toLowerCase()}}?"
+  (nzOnCancel)="onCancelDelete()"
+  (nzOnOk)="onOkDelete()"
+  [nzCancelDisabled]="isLoading$| async"
+  [nzOkLoading]="isLoading$| async"
+  [nzOkDanger]="true"
+  nzOkText="Delete"
+>
+  <h5 *nzModalContent><span *ngIf="deletedName">Delete {{deletedName}} ?</span></h5>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isDeleteManyModalVisible"
+  nzTitle="Are you sure you want to delete many {{crudConfig.plural}}"
+  (nzOnCancel)="this.isDeleteManyModalVisible = false"
+  (nzOnOk)="onOkDeleteMany()"
+  [nzCancelDisabled]="isLoading$| async"
+  [nzOkLoading]="isLoading$| async"
+  [nzOkDanger]="true"
+  nzOkText="Delete"
+>
+  <h5 *nzModalContent><span>Delete {{crudConfig.plural}} ?</span></h5>
+</nz-modal>
+
+<nz-drawer
+  [nzClosable]="true"
+  [nzWidth]="'90%'"
+  [nzVisible]="openPanel === 'import'"
+  nzPlacement="right"
+  nzTitle="Import {{crudConfig.plural}}"
+  [nzFooter]="importPanelFooter"
+  (nzOnClose)="onCloseDrawer()"
+>
+  <ng-template nzDrawerContent>
+    <zen-import-form
+      (formSubmit)="onImport($event)"
+      [startImport]="startImport"
+      [response]="importDto"
+    ></zen-import-form>
+  </ng-template>
+</nz-drawer>
+
+<ng-template #importPanelFooter>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <button (click)="onCloseDrawer()" nzBlock nz-button nzType="link">Close</button>
+      </div>
+      <div class="col-12">
+        <button [nzLoading]="isLoading$ | async" (click)="onImportButtonClick()" nzBlock nz-button nzType="primary">
+          Import
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

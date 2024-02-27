@@ -1,0 +1,33 @@
+<div
+  class="map-container h-100p w-100p"
+  leaflet
+  [leafletOptions]="options"
+  (leafletMapReady)="onMapReady($event)"
+  (leafletMapZoomEnd)="onMapZoomEnd($event)"
+  [leafletCenter]="center"
+></div>
+
+<zen-map-controls
+  (onStartDraw)="onStartDraw()"
+  (onEndDraw)="onEndDraw()"
+  [isDraw]="activeDraw"
+></zen-map-controls>
+
+<zen-delivery-zone-draw
+  [class.active-draw]="activeDraw"
+  [settings]="canvasSettings"
+  [closeDraw]="mapManipulations"
+  [mapMoveEnd]="mapMoveEnd$"
+  (onPolygons)="savePolygonForMapManipulation($event)"
+  (onCreate)="onCreate($event)"
+  [toCanvasCord]="toCanvasCord"
+  [toMapCord]="toMapCord"
+  (onZoom)="onZoom($event)"
+  (onMapDrag)="onMapDrag($event)"
+  (onStartDrag)="onStartDrag($event)"
+  (onEndDrag)="onEndDrag($event)"
+></zen-delivery-zone-draw>
+
+<div *ngIf="tooltipTemplate" #popup class="popup">
+  <ng-container *ngTemplateOutlet="tooltipTemplate; context: templateContext"></ng-container>
+</div>

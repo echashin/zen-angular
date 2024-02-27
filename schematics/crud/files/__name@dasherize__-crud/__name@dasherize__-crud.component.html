@@ -1,0 +1,11 @@
+<zen-crud
+  [config]="config"
+  [apiService]="service"
+  [columns]="columns"
+  [fields]='fields'
+  nameField='name_i18n.{{translate.currentLocaleId.toUpperCase()}}'
+>
+  <app-<%= dasherize(name) %>-create-form #create [zenCrudCreateForm]="create"></app-<%= dasherize(name) %>-create-form>
+  <app-<%= dasherize(name) %>-update-form #update [zenCrudUpdateForm]="update"></app-<%= dasherize(name) %>-update-form>
+  <app-<%= dasherize(name) %>-filter-form #filter [zenCrudFilterForm]="filter"></app-<%= dasherize(name) %>-filter-form>
+</zen-crud>

@@ -1,0 +1,45 @@
+:host {
+  font: 400 11px Roboto, Arial, sans-serif;
+}
+
+.icon {
+  display: block;
+  width: 25px;
+  height: 25px;
+}
+
+button[disabled] .icon {
+  opacity: 0.5;
+}
+
+//draw state icons
+.icon.pencil {
+  background-image: url("../../images/tools/vector_draw.png");
+  background-size: cover;
+}
+
+.icon.union {
+  background-image: url("../../images/tools/shape_union.png");
+  background-size: cover;
+}
+
+.icon.exclude {
+  background-image: url("../../images/tools/shape_exclude.png");
+  background-size: cover;
+}
+
+//edit vector state icons
+.icon.vector_edit {
+  background-image: url("../../images/tools/vector_edit.png");
+  background-size: cover;
+}
+
+.icon.move {
+  background-image: url("../../images/tools/vector_move.png");
+  background-size: cover;
+}
+
+.icon.remove {
+  background-image: url("../../images/tools/vector_remove.png");
+  background-size: cover;
+}

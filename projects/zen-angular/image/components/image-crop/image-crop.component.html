@@ -1,0 +1,23 @@
+<div class="d-flex">
+  <div class="d-flex flex-column">
+    <image-cropper
+      #cropper
+      class="flex-grow-1"
+      *ngIf="imageFile"
+      [imageFile]="imageFile"
+      [maintainAspectRatio]="maintainAspectRatio"
+      [aspectRatio]="aspectRatio"
+      (imageCropped)="imageCropped($event)"
+      [canvasRotation]="canvasRotation"
+      [transform]="transform"
+      output="base64"
+    ></image-cropper>
+    <div class="preview">
+      <img [src]="preview" [class.preview-img-border]="preview" alt="image">
+    </div>
+  </div>
+  <div class="w-60 crop-tools">
+    <button nz-button nzSize="small" (click)="rotateRight()"><span nz-icon nzType="redo" nzTheme="outline"></span></button>
+    <button nz-button nzSize="small" (click)="rotateLeft()"><span nz-icon nzType="undo" nzTheme="outline"></span></button>
+  </div>
+</div>

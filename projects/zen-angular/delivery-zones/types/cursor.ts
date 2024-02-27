@@ -1,0 +1,1 @@
+export type Cursor = 'move' | 'add' | 'add_close' | 'edit_add_point' | 'default' | 'edit_remove_point';

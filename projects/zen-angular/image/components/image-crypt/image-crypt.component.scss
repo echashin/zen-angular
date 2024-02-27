@@ -1,0 +1,41 @@
+.decrypt-button {
+  position: absolute;
+  z-index: 3;
+  right: 50%;
+  top: 50%;
+  transform: translate(50%, -50%);
+  padding: 3px;
+  border-radius: 3px;
+  background: #3a3a3a;
+}
+
+.crypt-image {
+  z-index: 2;
+  transition: 2s;
+  background: white;
+  position: inherit;
+  opacity: 1;
+
+  &.hide {
+    opacity: 0;
+  }
+}
+
+.cancel-decrypt {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+}
+
+:host > ::ng-deep canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+:host {
+  position: relative;
+  display: inline-block;
+}

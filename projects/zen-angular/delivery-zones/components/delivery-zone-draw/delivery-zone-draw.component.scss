@@ -1,0 +1,80 @@
+:host {
+  position: absolute;
+  display: block;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  //background: rgba(255, 0, 0, 0.2);
+  //z-index: 1;
+}
+
+.canvas-container {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  position: absolute;
+}
+
+.canvas-container.move {
+  cursor: move;
+}
+.canvas-container.add {
+  cursor: url('../../images/cursors/vector_draw_cursor.png') 0 14, crosshair;
+}
+
+.canvas-container.add_close {
+  cursor: url('../../images/cursors/vector_close_path.png') 7 6, crosshair;
+}
+
+.canvas-container.default {
+  cursor: default;
+}
+.canvas-container.edit_add_point {
+  cursor: url('../../images/cursors/edit_add_point.png') 0 0, crosshair;
+}
+.canvas-container.edit_remove_point {
+  cursor: url('../../images/cursors/edit_remove_point.png') 0 0, crosshair;
+}
+
+.icon {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+
+.icon.save {
+  background-image: url("../../images/tools/save.png");
+  background-size: cover;
+  background-position: center;
+  margin: auto;
+}
+
+button:has(.icon.save) {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 26px;
+  height: 52px;
+  padding: 0;
+}
+
+::ng-deep app-test-map div[tabindex='0'] {
+  canvas {
+    pointer-events: none;
+    cursor: auto;
+  }
+  .controls {
+    display: block;
+  }
+}
+
+zen-draw-controls {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+}

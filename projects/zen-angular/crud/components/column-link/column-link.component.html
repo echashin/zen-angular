@@ -1,0 +1,12 @@
+<a
+  *ngIf="href"
+  [attr.target]="target||null"
+  [href]="href"
+>{{label}}</a>
+<a
+  *ngIf="routerLink"
+  [routerLink]="routerLink"
+  [queryParams]="queryParams||null"
+>{{label}}</a>
+
+

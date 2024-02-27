@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "crud",
+  "title": "Crud",
+  "type": "object",
+  "description": "Generate crud",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "crud table name"
+    },
+    "path": {
+      "type": "string",
+      "description": "folder to generate"
+    },
+    "addDetails": {
+      "type": "boolean",
+      "description": "include details form"
+    },
+    "isMeta": {
+      "type": "boolean",
+      "description": "Forms extend from meta entity"
+    },
+    "removeFilter": {
+      "type": "boolean",
+      "description": "include filter form"
+    }
+  },
+  "required": [
+    "name", "path"
+  ]
+}

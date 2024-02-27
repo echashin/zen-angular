@@ -1,0 +1,29 @@
+<div
+  class="canvas-container" style="position: relative" #container
+  (click)="onClick($event)"
+  (mousedown)="onMouseDown($event)"
+  (mouseup)="onMouseUp($event)"
+  [class]="drawing.cursor|async"
+  (wheel)="onScroll($event)"
+>
+  <canvas
+    #canvasExistedZones
+  ></canvas>
+  <canvas
+    #canvasNewZone
+  ></canvas>
+  <canvas
+    #canvasRemoveZone
+  ></canvas>
+</div>
+
+<button title="Save Zone (q)" class="save" (click)="onCreateDeliveryZone()">
+  <span class="icon save"></span>
+</button>
+
+<zen-draw-controls
+  [state]="drawing.activeState"
+  [newPolygonPoints]="drawing.newPolygonCanvasCord.length"
+  (changeMode)="onChangeMode($event)"
+  (changeState)="onChangeState($event)"
+></zen-draw-controls>

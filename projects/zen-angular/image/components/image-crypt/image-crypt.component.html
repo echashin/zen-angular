@@ -1,0 +1,9 @@
+<img class="crypt-image" [class.hide]="showDecrypt" #image [src]="imageSrc" crossOrigin='anonymous' (load)="load()">
+
+<div class="decrypt-button" *ngIf="!showDecrypt">
+  <button nz-button nzType="link" nzDanger (click)="onDecryptClick()">Decrypt</button>
+</div>
+
+<div class="cancel-decrypt" *ngIf="showDecrypt">
+  <button nz-button nzType="link" (click)="hideOriginal()"><span nz-icon nzType="rollback" nzTheme="outline"></span></button>
+</div>

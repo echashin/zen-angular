@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/zen-angular",
+  "assets": [
+    "./assets",
+    "./assets/column-colors.less"
+  ],
+  "lib": {
+    "entryFile": "public-api.ts",
+    "flatModuleFile": ""
+  },
+  "allowedNonPeerDependencies": ["angular", "ng-zorro-antd", "jwt-decode", "js-cookie", "ngx-image-cropper"]
+}
